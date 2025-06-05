@@ -2,9 +2,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Something.Like.Api;
+using Something.Like.Bot;
 using Telegram.Bot;
 
-namespace Something.Like.Settings;
+namespace Something.Like.Main;
 
 /// <summary>
 /// Configuration Helper
@@ -19,7 +21,7 @@ public static class ConfigHelper
 	/// <param name="sectionName"></param>
 	/// <typeparam name="T"></typeparam>
 	/// <returns></returns>
-	public static IServiceCollection ConfigureSection<T>(this IServiceCollection services,
+	private static IServiceCollection ConfigureSection<T>(this IServiceCollection services,
 		IConfiguration configuration, string sectionName = null) where T : class
 		=> services
 			.Configure<T>(configuration
@@ -35,12 +37,30 @@ public static class ConfigHelper
 	public static IServiceCollection AddBotConfiguration(this IServiceCollection services,
 		IConfiguration configuration, string sectionName = null)
 	{
-		var token = Environment.GetEnvironmentVariable("TOKEN") ?? string.Empty;
+		var token = Environment.GetEnvironmentVariable("BOT_TOKEN") ?? string.Empty;
 		return string.IsNullOrEmpty(token)
 			? services
 				.ConfigureSection<BotConfiguration>(configuration, sectionName)
 			: services
 				.AddSingleton(Options.Create(new BotConfiguration { Token = token }));
+	}
+
+	/// <summary>
+	/// Add Api Configuration
+	/// </summary>
+	/// <param name="services"></param>
+	/// <param name="configuration"></param>
+	/// <param name="sectionName"></param>
+	/// <returns></returns>
+	public static IServiceCollection AddApiConfiguration(this IServiceCollection services,
+		IConfiguration configuration, string sectionName = null)
+	{
+		var token = Environment.GetEnvironmentVariable("API_TOKEN") ?? string.Empty;
+		return string.IsNullOrEmpty(token)
+			? services
+				.ConfigureSection<ApiConfiguration>(configuration, sectionName)
+			: services
+				.AddSingleton(Options.Create(new ApiConfiguration { Token = token }));
 	}
 
 	/// <summary>
@@ -60,6 +80,27 @@ public static class ConfigHelper
 				ArgumentNullException.ThrowIfNull(botConfiguration);
 				TelegramBotClientOptions options = new(botConfiguration.Token);
 				return new TelegramBotClient(options, httpClient);
+			});
+
+		return services;
+	}
+
+	/// <summary>
+	/// Add API Client
+	/// </summary>
+	/// <param name="services"></param>
+	/// <param name="name"></param>
+	/// <returns></returns>
+	public static IServiceCollection AddApiClient(this IServiceCollection services, string name)
+	{
+		services
+			.AddHttpClient(name)
+			.RemoveAllLoggers()
+			.AddTypedClient<IApiClient>((httpClient, sp) =>
+			{
+				var apiConfiguration = sp.GetService<IOptions<ApiConfiguration>>()?.Value;
+				ArgumentNullException.ThrowIfNull(apiConfiguration);
+				return new ApiClient(apiConfiguration, httpClient);
 			});
 
 		return services;

@@ -1,9 +1,9 @@
-﻿namespace Something.Like.Settings;
+﻿namespace Something.Like.Api;
 
 /// <summary>
-/// Default Configuration for Bot
+/// Default Configuration for Api
 /// </summary>
-public class BotConfiguration
+public class ApiConfiguration
 {
 	/// <summary>
 	/// The Bot token

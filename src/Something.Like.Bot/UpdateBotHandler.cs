@@ -16,7 +16,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace Something.Like.Bot;
 
 /// <inheritdoc />
-public class UpdateHandler(ITelegramBotClient bot, ILogger<UpdateHandler> logger) : IUpdateHandler
+public class UpdateBotHandler(ITelegramBotClient bot, ILogger<UpdateBotHandler> logger) : IUpdateHandler
 {
 	private static readonly InputPollOption[] PollOptions = ["Hello", "World!"];
 
