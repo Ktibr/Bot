@@ -1,4 +1,4 @@
-﻿namespace Something.Like.Bot;
+﻿namespace Something.Like.Configuration;
 
 /// <summary>
 /// Default Configuration for Bot
@@ -8,5 +8,5 @@ public class BotConfiguration
 	/// <summary>
 	/// The Bot token
 	/// </summary>
-	public required string Token { get; init; }
+	public string Token { get; set; }
 }

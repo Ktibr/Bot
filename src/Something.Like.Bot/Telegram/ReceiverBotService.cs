@@ -5,7 +5,7 @@ using Something.Like.Abstractions;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 
-namespace Something.Like.Bot;
+namespace Something.Like.Telegram;
 
 /// <summary>
 /// Compose Receiver and UpdateHandler implementation
