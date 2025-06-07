@@ -2,12 +2,12 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Something.Like.Abstractions;
+namespace Something.Like;
 
 /// <summary>
-/// Abstractions Helper
+/// Internal Helper
 /// </summary>
-public static class AbstractionsHelper
+public static class InternalHelper
 {
 	/// <summary>
 	/// Safe Delay

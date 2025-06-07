@@ -2,7 +2,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using Something.Like.Abstractions;
 
-namespace Something.Like.Bot;
+namespace Something.Like.Telegram;
 
 /// <summary>
 /// Compose Polling and ReceiverService implementations

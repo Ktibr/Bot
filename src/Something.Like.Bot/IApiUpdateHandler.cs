@@ -1,11 +1,15 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Something.Like.Api;
 
-namespace Something.Like.Api;
+namespace Something.Like;
 
 /// <summary>
 /// API Update Handler
 /// </summary>
+[PublicAPI]
 public interface IApiUpdateHandler
 {
 	/// <summary>
@@ -22,5 +26,5 @@ public interface IApiUpdateHandler
 	/// <param name="exception"></param>
 	/// <param name="cancellationToken"></param>
 	/// <returns></returns>
-	Task HandleErrorAsync(ApiException exception, CancellationToken cancellationToken);
+	Task HandleErrorAsync(Exception exception, CancellationToken cancellationToken);
 }
