@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Something.Like.Api;
+using Something.Like.Data;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -48,14 +49,59 @@ public class UpdateBotHandler(IApiClient apiClient, ILogger<UpdateBotHandler> lo
 
 		Message sentMessage = await (messageText.Split(' ')[0] switch
 		{
-			"/api_test" => ApiTest(botClient, msg, ctx),
+			"/start" => StartMessageAsync(botClient, msg, ctx),
+			"/api_test" => ApiTestAsync(botClient, msg, ctx),
 			_ => Usage(botClient, msg)
 		});
 
 		logger.LogInformation("The message was sent with id: {SentMessageId}", sentMessage.Id);
 	}
 
-	private async Task<Message> ApiTest(ITelegramBotClient botClient, Message msg, CancellationToken ctx)
+	private const string WelcomeMessage = "<b>Menu:</b></ br>TODO";
+
+	private async Task<Message> StartMessageAsync(ITelegramBotClient botClient, Message msg, CancellationToken ctx)
+	{
+		Message botMessage;
+		var items = msg.Text!.Split(' ');
+		if (items.Length == 1)
+		{
+			// no action, start
+			botMessage = await botClient.SendMessage(msg.Chat, WelcomeMessage, parseMode: ParseMode.Html,
+				replyMarkup: new ReplyKeyboardRemove(), cancellationToken: ctx);
+		}
+		else
+		{
+			var commandString = items[1].FromBase64();
+			if (string.IsNullOrWhiteSpace(commandString))
+			{
+				// couldn't recognize the message
+				botMessage = await botClient.SendMessage(msg.Chat, WelcomeMessage, parseMode: ParseMode.Html,
+					replyMarkup: new ReplyKeyboardRemove(), cancellationToken: ctx);
+			}
+			else
+			{
+				logger.LogInformation("{Id} : Sending command: {Command}", msg.Chat.ToString(), commandString);
+
+				ActionCommand command = commandString.ParseCommand();
+				if (command == null)
+				{
+					// couldn't recognize the command
+					botMessage = await botClient.SendMessage(msg.Chat, WelcomeMessage, parseMode: ParseMode.Html,
+						replyMarkup: new ReplyKeyboardRemove(), cancellationToken: ctx);
+				}
+				else
+				{
+					var text = command.ToPromptString();
+					botMessage = await botClient.SendMessage(msg.Chat, text, parseMode: ParseMode.Html,
+						replyMarkup: new ReplyKeyboardRemove(), cancellationToken: ctx);
+				}
+			}
+		}
+
+		return botMessage;
+	}
+
+	private async Task<Message> ApiTestAsync(ITelegramBotClient botClient, Message msg, CancellationToken ctx)
 	{
 		var response = await apiClient.SendAsync(new ApiMessage(), ctx);
 
